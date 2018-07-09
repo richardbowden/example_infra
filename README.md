@@ -1,5 +1,6 @@
-# ---
+---
 
+## TFVARS
 terraform reads its vars in a linar fashion. We will use this to have an override abiltiy. Common vars will exist in `terraform.tfvars` and stack specific vars will exist in mystack.tfvars. Note that the value terraform choses is the last value to got from the var files, the most right file will take presedance.
 
 `terraform plan -var-file=terraform.tfvars -var-file=mystack.tfvars`
@@ -7,7 +8,7 @@ terraform reads its vars in a linar fashion. We will use this to have an overrid
 `terraform destroy -var-file=terraform.tfvars -var-file=mystack.tfvars`
 
 
-Example stack specific settings / overrides.
+## Example stack specific settings / overrides.
 
 also, see terraform.tfvars for general settings that have not been overriden, like subnet ranges and so on.
 
@@ -40,7 +41,7 @@ also, see terraform.tfvars for general settings that have not been overriden, li
     app_ssm_kms_key = "alias/aws/ssm"
 
 
-Notes:
+### Notes:
 
 This is designed to deploy example_app, a simple crud app that is written in go and uses psql. The zip file `latest.zip` in deployable_app needs to be put in an s3 bucket. This binary in that zip is compiled for linux
 
@@ -49,7 +50,7 @@ Then update `./userdata/app_server.sh` at line `- [ aws, s3, cp, "s3://rbexample
 `./outputs.tf` is commented out due to on a destroy terraform still moans that the outputs cannot output as there is no state, i just dont like seeing false errors.
 
 
-TODO: 
+### TODO: 
 
 - make `./userdata/app_server.sh` to be rendered by terraform template that uses the `deploy_bucket` param that is used for setting the IAM polices for the bucket. 
     
