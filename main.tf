@@ -85,6 +85,10 @@ variable "web_instance_size" {
   default = "t2.micro"
 }
 
+variable "deploy_bucket" {}
+
+variable "app_ssm_kms_key" {}
+
 //for a prod deployment, you would use multipul keys, if used at all.
 resource "aws_key_pair" "deployer" {
   key_name   = "deployer-key"
@@ -146,6 +150,9 @@ module "app" {
   nodes_max              = "${var.app_nodes_max}"
   nodes_desired_capacity = "${var.app_nodes_desired_capacity}"
   elb_sg_id              = "${module.security_groups.app_elb_sg_id}"
+  deploy_bucket          = "${var.deploy_bucket}"
+  app_ssm_kms_key        = "${var.app_ssm_kms_key}"
+  region                 = "${var.region}"
 
   //DO NOT REMOVE need to to create a hard dependancy so that the gateways and params are created before the asg's
   nat_gateway_ip = "${module.vpc.nat_gateway_ip}"

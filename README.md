@@ -9,6 +9,8 @@ terraform reads its vars in a linar fashion. We will use this to have an overrid
 
 Example stack specific settings / overrides.
 
+also, see terraform.tfvars for general settings that have not been overriden, like subnet ranges and so on.
+
 `mystack.tfvars`
 
     stack_name = "mytest"
@@ -33,3 +35,26 @@ Example stack specific settings / overrides.
 
     db_passwd = "supersecretpassword"
 
+    deploy_bucket = "rbexamplebuiltbin"
+
+    app_ssm_kms_key = "alias/aws/ssm"
+
+
+Notes:
+
+This is designed to deploy example_app, a simple crud app that is written in go and uses psql. The zip file `latest.zip` in deployable_app needs to be put in an s3 bucket. This binary in that zip is compiled for linux
+
+Then update `./userdata/app_server.sh` at line `- [ aws, s3, cp, "s3://rbexamplebuiltbin/latest.zip", ./ ]` with the new s3 bucket
+
+`./outputs.tf` is commented out due to on a destroy terraform still moans that the outputs cannot output as there is no state, i just dont like seeing false errors.
+
+
+TODO: 
+
+- make `./userdata/app_server.sh` to be rendered by terraform template that uses the `deploy_bucket` param that is used for setting the IAM polices for the bucket. 
+    
+        Had an issue that the template provider some how altered the YAML for cloud-init, which made it fail, will revisit another time.
+
+- maybe introduce ansible, but for now it feels to heavy for this project
+
+- fix `aws_db_instance` this has an issue with final snapshots, terraform still does not honor the `don't backup my database`, there is a github issue for this https://github.com/terraform-providers/terraform-provider-aws/issues/92

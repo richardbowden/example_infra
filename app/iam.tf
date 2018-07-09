@@ -24,91 +24,107 @@ resource "aws_iam_instance_profile" "app_servers" {
   role = "${aws_iam_role.app_servers.name}"
 }
 
+data "aws_iam_policy_document" "s3_deploy" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:ListBucket",
+      "s3:ListAllMyBuckets",
+    ]
+
+    resources = [
+      "arn:aws:s3:::*",
+    ]
+  }
+
+  statement {
+    effect = "Deny"
+
+    actions = [
+      "s3:ListBucket",
+    ]
+
+    not_resources = [
+      "arn:aws:s3:::${var.deploy_bucket}",
+      "arn:aws:s3:::${var.deploy_bucket}/*",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:ListBucket",
+      "s3:GetObject",
+    ]
+
+    resources = [
+      "arn:aws:s3:::${var.deploy_bucket}",
+      "arn:aws:s3:::${var.deploy_bucket}/*",
+    ]
+  }
+}
+
 resource "aws_iam_policy" "app_server_readonly_policy" {
   name = "${var.name}_app_server_readonly"
   path = "/"
 
-  policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "s3:ListBucket",
-                "s3:ListAllMyBuckets"
-            ],
-            "Resource": "arn:aws:s3:::*"
-        },
-        {
-            "Effect": "Deny",
-            "Action": [
-                "s3:ListBucket"
-            ],
-            "NotResource": [
-                "arn:aws:s3:::rbexamplebuiltbin",
-                "arn:aws:s3:::rbexamplebuiltbin/*"
-            ]
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "s3:ListBucket",
-                "s3:GetObject"
-            ],
-            "Resource": [
-                "arn:aws:s3:::rbexamplebuiltbin",
-                "arn:aws:s3:::rbexamplebuiltbin/*"
-            ],
-            "Condition": {}
-        }
-    ]
-}
-EOF
+  policy = "${data.aws_iam_policy_document.s3_deploy.json}"
 }
 
 data "aws_kms_key" "ssm" {
-  key_id = "alias/aws/ssm"
+  key_id = "${var.app_ssm_kms_key}"
+}
+
+data "aws_iam_policy_document" "ssm_access_readonly" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ssm:DescribeParameters",
+    ]
+
+    resources = [
+      "*",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ssm:GetParametersByPath",
+      "ssm:GetParameters",
+      "ssm:GetParameter",
+    ]
+
+    resources = [
+      "arn:aws:ssm:${var.region}:${data.aws_kms_key.ssm.aws_account_id}:parameter/database*",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "kms:Describe*",
+      "kms:Get*",
+      "kms:List*",
+      "kms:Decrypt",
+    ]
+
+    resources = [
+      "${data.aws_kms_key.ssm.arn}",
+    ]
+  }
 }
 
 resource "aws_iam_policy" "app_server_ssm_access_readonly" {
   name = "${var.name}_app_server_ssm_access_readonly"
   path = "/"
 
-  policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-         {
-            "Effect": "Allow",
-            "Action": [
-                "ssm:DescribeParameters"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ssm:GetParametersByPath",
-                "ssm:GetParameters",
-                "ssm:GetParameter"
-            ],
-            "Resource": "arn:aws:ssm:eu-west-1:233596137442:parameter/database*"
-        },
-
-        {
-            "Effect": "Allow",
-            "Action": [
-                "kms:Describe*",
-                "kms:Get*",
-                "kms:List*",
-                "kms:Decrypt"
-            ],
-            "Resource": "arn:aws:kms:eu-west-1:233596137442:key/b8fc8fe9-1e73-42b6-9414-35ec77e20bf4"
-        }
-    ]
-}
-EOF
+  policy = "${data.aws_iam_policy_document.ssm_access_readonly.json}"
 }
 
 # IAM Policy Attachments

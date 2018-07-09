@@ -16,10 +16,10 @@ DB_SUBNETS = params['db_subnets']['value']
 title 'example tests, these should be generated!'
 
 
-describe aws_security_group(id: 'sg-bb9453c7') do
-  it { should exist }
-  its('vpc_id') { should eq VPC_ID }  
-end
+# describe aws_security_group(id: 'sg-abff38d7') do
+#   it { should exist }
+#   its('vpc_id') { should eq VPC_ID }  
+# end
 
 describe aws_security_group(group_name: BASTION_SG_NAME) do
   it { should exist }
