@@ -1,0 +1,8 @@
+name: verify
+title: Exmaple tests for an example app, this is intended to be complate coverage
+maintainer: RB
+copyright: The Authors
+copyright_email: me@me.com
+license: Apache-2.0
+summary: a few tests to demo testing for the example infra
+version: 0.1.0
