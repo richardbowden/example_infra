@@ -12,6 +12,15 @@
 #   }
 # }
 
+data "template_file" "userdata" {
+  template = "${var.user_data}"
+
+  vars {
+    deploy_bucket = "${var.deploy_bucket}"
+    deploy_file   = "${var.deploy_file}"
+  }
+}
+
 resource "aws_elb" "elb_app" {
   name            = "${var.name}-elb-App"
   subnets         = ["${var.subnets}"]
@@ -79,7 +88,7 @@ resource "aws_launch_configuration" "app_launch_config" {
 
   iam_instance_profile = "${aws_iam_instance_profile.app_servers.name}"
 
-  user_data = "${var.user_data}"
+  user_data = "${data.template_file.userdata.rendered}"
 
   key_name = "${var.key}"
 }

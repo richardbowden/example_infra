@@ -4,7 +4,7 @@ packages:
  - jq
 
 runcmd: 
- - [ aws, s3, cp, "s3://rbexamplebuiltbin/latest.zip", ./ ]
+ - [ aws, s3, cp, "s3://${deploy_bucket}/${deploy_file}", ./ ]
  - [ unzip, latest.zip, -d, app_server ]
  - [ chmod, "+x", /app_server/write_sysd_config.sh]
  - [ /app_server/write_sysd_config.sh ]

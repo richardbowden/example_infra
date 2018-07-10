@@ -89,6 +89,8 @@ variable "deploy_bucket" {}
 
 variable "app_ssm_kms_key" {}
 
+variable "app_deploy_file" {}
+
 //for a prod deployment, you would use multipul keys, if used at all.
 resource "aws_key_pair" "deployer" {
   key_name   = "deployer-key"
@@ -145,12 +147,13 @@ module "app" {
   subnets                = "${module.vpc.private_subnets}"
   instance_size          = "${var.app_instance_size}"
   sgs                    = ["${module.security_groups.app_sg_id}"]
-  user_data              = "${file("${path.module}/userdata/app_server.sh")}"
+  user_data              = "${file("${path.module}/userdata/app_server.tpl")}"
   nodes_min              = "${var.app_nodes_min}"
   nodes_max              = "${var.app_nodes_max}"
   nodes_desired_capacity = "${var.app_nodes_desired_capacity}"
   elb_sg_id              = "${module.security_groups.app_elb_sg_id}"
   deploy_bucket          = "${var.deploy_bucket}"
+  deploy_file            = "${var.app_deploy_file}"
   app_ssm_kms_key        = "${var.app_ssm_kms_key}"
   region                 = "${var.region}"
 
