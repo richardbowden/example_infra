@@ -27,6 +27,7 @@ variable "nat_gateway_ip" {}
 variable "param_store_db_url_path" {}
 
 variable "deploy_bucket" {}
+variable "deploy_file" {}
 
 variable "app_ssm_kms_key" {}
 

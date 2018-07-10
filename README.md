@@ -37,6 +37,8 @@ also, see terraform.tfvars for general settings that have not been overriden, li
 
     deploy_bucket = "rbexamplebuiltbin"
 
+    app_deply_file = "latest.zip"
+
     app_ssm_kms_key = "alias/aws/ssm"
 
 
@@ -44,16 +46,12 @@ Notes:
 
 This is designed to deploy example_app, a simple crud app that is written in go and uses psql. The zip file `latest.zip` in deployable_app needs to be put in an s3 bucket. This binary in that zip is compiled for linux
 
-Then update `./userdata/app_server.sh` at line `- [ aws, s3, cp, "s3://rbexamplebuiltbin/latest.zip", ./ ]` with the new s3 bucket
+The file that pulls the zip down is  `./userdata/app_server.sh` at line `- [ aws, s3, cp, "s3://rbexamplebuiltbin/latest.zip", ./ ]`
 
 `./outputs.tf` is commented out due to on a destroy terraform still moans that the outputs cannot output as there is no state, i just dont like seeing false errors.
 
 
 TODO: 
-
-- make `./userdata/app_server.sh` to be rendered by terraform template that uses the `deploy_bucket` param that is used for setting the IAM polices for the bucket. 
-    
-        Had an issue that the template provider some how altered the YAML for cloud-init, which made it fail, will revisit another time.
 
 - maybe introduce ansible, but for now it feels to heavy for this project
 
